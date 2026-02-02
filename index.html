@@ -160,7 +160,6 @@
         }
 
         /* --- DESKTOP HOVER EFFECTS ONLY --- */
-        /* This prevents "double tap" issues on mobile */
         @media (hover: hover) {
             .project-card:hover {
                 transform: translateY(-5px);
@@ -177,7 +176,7 @@
             }
         }
 
-        /* On Touch Devices, make icon always visible slightly so they know it's actionable */
+        /* On Touch Devices, make icon visible slightly */
         @media (hover: none) {
             .visual-icon {
                 opacity: 0.7;
@@ -299,6 +298,7 @@
             height: auto;
             object-fit: contain;
             display: block;
+            transition: opacity 0.2s ease-in-out;
         }
 
         /* Navigation Arrows */
@@ -306,7 +306,7 @@
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(0,0,0,0.3); /* Slight background for mobile visibility */
+            background: rgba(0,0,0,0.3);
             color: rgba(255,255,255,0.9);
             border: none;
             padding: 20px;
@@ -405,11 +405,12 @@
         @media (max-width: 768px) {
             h1 { font-size: 2.5rem; }
             .grid-container { grid-template-columns: 1fr; }
-            /* Ensure arrows are visible on mobile but smaller */
             .nav-btn { 
                 padding: 15px; 
                 font-size: 2rem; 
             }
+            .prev { left: 10px; }
+            .next { right: 10px; }
         }
     </style>
 </head>
@@ -623,7 +624,7 @@
         <div id="galleryContainer" class="gallery-container" style="display:none;">
             <div class="loader" id="loader"></div>
             <button class="nav-btn prev" onclick="changeSlide(-1)">&#10094;</button>
-            <img id="modalImage" class="gallery-img" src="" alt="" onload="hideLoader()">
+            <img id="modalImage" class="gallery-img" src="" alt="">
             <button class="nav-btn next" onclick="changeSlide(1)">&#10095;</button>
             
             <!-- Instructions and Dots -->
@@ -640,7 +641,7 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // --- DATA: IMAGE URLS (Updated with ibb.co links) ---
+        // --- DATA: IMAGE URLS ---
         const galleryData = {
             'ge': [
                 "https://i.ibb.co/Nnn6xNsR/1-8-Photo.jpg",
@@ -716,6 +717,18 @@
 
             generateDots(galleryData[id].length);
             updateImage();
+            
+            // Start preloading the entire gallery in the background after a small delay
+            // to prioritize the first image.
+            setTimeout(() => preloadGalleryImages(id), 1000);
+        }
+        
+        function preloadGalleryImages(id) {
+            const images = galleryData[id];
+            images.forEach(src => {
+                const img = new Image();
+                img.src = src;
+            });
         }
 
         // Generate Dots
@@ -736,27 +749,34 @@
             updateImage();
         }
 
-        // Loader visibility functions
-        function showLoader() { document.getElementById('loader').style.display = 'block'; }
-        function hideLoader() { document.getElementById('loader').style.display = 'none'; }
-
-        // Update Image & Caption & Dots
+        // Update Image & Caption & Dots (Optimized for Speed)
         function updateImage() {
             const images = galleryData[currentGalleryId];
             const imgElement = document.getElementById('modalImage');
             const captionElement = document.getElementById('imageCaption');
+            const loader = document.getElementById('loader');
             
-            // Show loader while new image fetches
-            showLoader();
+            // Show loader initially
+            loader.style.display = 'block';
+            imgElement.style.opacity = '0.3'; // Dim current image while loading next
+
+            // Create a temporary image to handle loading smoothly
+            const tempImg = new Image();
             
-            // Fade effect for smooth transition
-            imgElement.style.opacity = '0';
-            
-            // Allow brief delay for loading to start
-            setTimeout(() => {
-                imgElement.src = images[currentImageIndex];
+            tempImg.onload = function() {
+                imgElement.src = this.src;
+                loader.style.display = 'none';
                 imgElement.style.opacity = '1';
-            }, 50);
+                
+                // Preload immediate neighbors for smoothness
+                const nextIndex = (currentImageIndex + 1) % images.length;
+                const prevIndex = (currentImageIndex - 1 + images.length) % images.length;
+                new Image().src = images[nextIndex];
+                new Image().src = images[prevIndex];
+            };
+            
+            // Start loading
+            tempImg.src = images[currentImageIndex];
 
             captionElement.innerText = `Image ${currentImageIndex + 1} of ${images.length}`;
 
