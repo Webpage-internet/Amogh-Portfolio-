@@ -113,20 +113,20 @@
             gap: 30px;
         }
 
-        /* --- LINK CARDS (GALLERIES) --- */
-        .link-card {
+        /* --- INTERACTIVE CARDS --- */
+        .project-card {
             display: flex;
             flex-direction: column;
-            text-decoration: none;
             background: var(--card-bg);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             overflow: hidden;
             transition: transform 0.2s, border-color 0.2s;
             position: relative;
+            cursor: pointer;
         }
 
-        .link-card:hover {
+        .project-card:hover {
             transform: translateY(-5px);
             border-color: var(--primary);
             box-shadow: 0 5px 15px rgba(0, 242, 255, 0.1);
@@ -134,46 +134,38 @@
 
         .card-visual {
             height: 200px;
-            background: #000;
+            background: linear-gradient(135deg, #1e1e30, #0a0a15);
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
             position: relative;
         }
-        
+
         .card-visual img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            opacity: 0.8;
+            opacity: 0.6;
             transition: opacity 0.3s;
         }
 
-        .link-card:hover .card-visual img {
+        .project-card:hover .card-visual img {
             opacity: 1;
         }
-
-        .gallery-icon-placeholder {
-            font-size: 3rem;
-            color: var(--secondary);
-        }
-
-        /* Play Icon Overlay for Videos */
-        .play-overlay {
+        
+        /* Icons inside the visual area */
+        .visual-icon {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
             font-size: 3rem;
-            color: #fff;
-            text-shadow: 0 0 10px rgba(0,0,0,0.8);
-            pointer-events: none;
+            color: rgba(255, 255, 255, 0.8);
+            z-index: 2;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
         .card-info {
             padding: 20px;
             color: #fff;
+            text-align: center;
         }
 
         .card-info h3 {
@@ -181,20 +173,12 @@
             font-size: 1.2rem;
         }
 
-        .card-info span {
-            font-size: 0.9rem;
-            color: var(--primary);
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-        
         .click-hint {
-            margin-top: 15px;
+            margin-top: 10px;
             font-size: 0.85rem;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            color: var(--primary);
+            font-weight: bold;
+            text-transform: uppercase;
         }
 
         /* --- SKILLS --- */
@@ -237,19 +221,82 @@
             color: #000;
         }
 
-        /* --- FOOTER --- */
-        footer {
+        /* --- MODAL (POPUP) --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: #1a1a2e;
+            width: 100%;
+            max-width: 900px;
+            height: 80vh;
+            border-radius: 12px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--primary);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: #fff;
+            font-size: 2rem;
+            cursor: pointer;
+            z-index: 10;
+            background: rgba(0,0,0,0.5);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            flex-grow: 1;
+            width: 100%;
+            height: 100%;
+            background: #000;
+        }
+
+        .modal-body iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Fallback link in modal */
+        .modal-fallback {
+            padding: 10px;
             text-align: center;
-            padding: 40px;
+            background: #222;
+            color: #aaa;
             font-size: 0.9rem;
-            color: var(--text-muted);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .modal-fallback a {
+            color: var(--primary);
+            text-decoration: none;
         }
 
         /* Mobile Fixes */
         @media (max-width: 768px) {
             h1 { font-size: 2.5rem; }
             .grid-container { grid-template-columns: 1fr; }
+            .modal-content { height: 60vh; }
         }
     </style>
 </head>
@@ -277,133 +324,133 @@
     <!-- GALLERIES SECTION -->
     <section>
         <h2>Image Galleries</h2>
-        <p style="text-align:center; color:var(--text-muted); margin-bottom:20px;">Click a card to view images</p>
+        <p style="text-align:center; color:var(--text-muted); margin-bottom:20px;">Tap to view in popup</p>
         
         <div class="grid-container">
-            <!-- Link 1 -->
-            <a href="https://postimg.cc/gallery/Xr2XgYw" target="_blank" class="link-card">
-                <div class="card-visual" style="background: linear-gradient(135deg, #1e1e30, #0a0a15);">
-                    <i class="fas fa-store gallery-icon-placeholder"></i>
+            <!-- Gallery 1 -->
+            <div class="project-card" onclick="openModal('gallery', 'https://postimg.cc/gallery/Xr2XgYw')">
+                <div class="card-visual">
+                    <i class="fas fa-store visual-icon"></i>
                 </div>
                 <div class="card-info">
                     <h3>SKF Stall</h3>
-                    <div class="click-hint"><i class="fas fa-images"></i> Open Gallery</div>
+                    <div class="click-hint"><i class="fas fa-expand"></i> View Gallery</div>
                 </div>
-            </a>
+            </div>
 
-            <!-- Link 2 -->
-            <a href="https://postimg.cc/gallery/h771Vmx" target="_blank" class="link-card">
-                <div class="card-visual" style="background: linear-gradient(135deg, #1e1e30, #0a0a15);">
-                    <i class="fas fa-leaf gallery-icon-placeholder"></i>
+            <!-- Gallery 2 -->
+            <div class="project-card" onclick="openModal('gallery', 'https://postimg.cc/gallery/h771Vmx')">
+                <div class="card-visual">
+                    <i class="fas fa-leaf visual-icon"></i>
                 </div>
                 <div class="card-info">
                     <h3>Eco Nest Stall</h3>
-                    <div class="click-hint"><i class="fas fa-images"></i> Open Gallery</div>
+                    <div class="click-hint"><i class="fas fa-expand"></i> View Gallery</div>
                 </div>
-            </a>
+            </div>
 
-            <!-- Link 3 -->
-            <a href="https://postimg.cc/gallery/SbHxHwP" target="_blank" class="link-card">
-                <div class="card-visual" style="background: linear-gradient(135deg, #1e1e30, #0a0a15);">
-                    <i class="fas fa-car gallery-icon-placeholder"></i>
+            <!-- Gallery 3 -->
+            <div class="project-card" onclick="openModal('gallery', 'https://postimg.cc/gallery/SbHxHwP')">
+                <div class="card-visual">
+                    <i class="fas fa-car visual-icon"></i>
                 </div>
                 <div class="card-info">
                     <h3>SKF Automotive</h3>
-                    <div class="click-hint"><i class="fas fa-images"></i> Open Gallery</div>
+                    <div class="click-hint"><i class="fas fa-expand"></i> View Gallery</div>
                 </div>
-            </a>
+            </div>
 
-            <!-- Link 4 -->
-            <a href="https://postimg.cc/gallery/SkvcCDN" target="_blank" class="link-card">
-                <div class="card-visual" style="background: linear-gradient(135deg, #1e1e30, #0a0a15);">
-                    <i class="fas fa-building gallery-icon-placeholder"></i>
+            <!-- Gallery 4 -->
+            <div class="project-card" onclick="openModal('gallery', 'https://postimg.cc/gallery/SkvcCDN')">
+                <div class="card-visual">
+                    <i class="fas fa-building visual-icon"></i>
                 </div>
                 <div class="card-info">
                     <h3>ELT Offsite</h3>
-                    <div class="click-hint"><i class="fas fa-images"></i> Open Gallery</div>
+                    <div class="click-hint"><i class="fas fa-expand"></i> View Gallery</div>
                 </div>
-            </a>
+            </div>
         </div>
     </section>
 
     <!-- VIDEOS SECTION -->
     <section>
         <h2>Video Projects</h2>
-        <p style="text-align:center; color:var(--text-muted); margin-bottom:20px;">Click to watch on YouTube</p>
+        <p style="text-align:center; color:var(--text-muted); margin-bottom:20px;">Tap to play video here</p>
 
         <div class="grid-container">
             
             <!-- Video 1 -->
-            <a href="https://youtu.be/0zvdwD9XK7s" target="_blank" class="link-card">
+            <div class="project-card" onclick="openModal('video', '0zvdwD9XK7s')">
                 <div class="card-visual">
                     <img src="https://img.youtube.com/vi/0zvdwD9XK7s/hqdefault.jpg" alt="RJS Expo">
-                    <i class="fas fa-play-circle play-overlay"></i>
+                    <i class="fas fa-play-circle visual-icon"></i>
                 </div>
                 <div class="card-info">
                     <h3>RJS Expo</h3>
-                    <div class="click-hint"><i class="fas fa-external-link-alt"></i> Watch Video</div>
+                    <div class="click-hint">Play Video</div>
                 </div>
-            </a>
+            </div>
 
             <!-- Video 2 -->
-            <a href="https://youtu.be/TIzjC7Xt-Eg" target="_blank" class="link-card">
+            <div class="project-card" onclick="openModal('video', 'TIzjC7Xt-Eg')">
                 <div class="card-visual">
                     <img src="https://img.youtube.com/vi/TIzjC7Xt-Eg/hqdefault.jpg" alt="The Earth">
-                    <i class="fas fa-play-circle play-overlay"></i>
+                    <i class="fas fa-play-circle visual-icon"></i>
                 </div>
                 <div class="card-info">
                     <h3>The Earth</h3>
-                    <div class="click-hint"><i class="fas fa-external-link-alt"></i> Watch Video</div>
+                    <div class="click-hint">Play Video</div>
                 </div>
-            </a>
+            </div>
 
             <!-- Video 3 -->
-            <a href="https://youtu.be/nCw8WDbe2AA" target="_blank" class="link-card">
+            <div class="project-card" onclick="openModal('video', 'nCw8WDbe2AA')">
                 <div class="card-visual">
                     <img src="https://img.youtube.com/vi/nCw8WDbe2AA/hqdefault.jpg" alt="Euro Glass">
-                    <i class="fas fa-play-circle play-overlay"></i>
+                    <i class="fas fa-play-circle visual-icon"></i>
                 </div>
                 <div class="card-info">
                     <h3>Euro Glass Stall</h3>
-                    <div class="click-hint"><i class="fas fa-external-link-alt"></i> Watch Video</div>
+                    <div class="click-hint">Play Video</div>
                 </div>
-            </a>
+            </div>
 
             <!-- Video 4 -->
-            <a href="https://youtu.be/aJS8MHqvFvE" target="_blank" class="link-card">
+            <div class="project-card" onclick="openModal('video', 'aJS8MHqvFvE')">
                 <div class="card-visual">
                     <img src="https://img.youtube.com/vi/aJS8MHqvFvE/hqdefault.jpg" alt="Urja">
-                    <i class="fas fa-play-circle play-overlay"></i>
+                    <i class="fas fa-play-circle visual-icon"></i>
                 </div>
                 <div class="card-info">
                     <h3>Urja Walkthrough</h3>
-                    <div class="click-hint"><i class="fas fa-external-link-alt"></i> Watch Video</div>
+                    <div class="click-hint">Play Video</div>
                 </div>
-            </a>
+            </div>
 
             <!-- Video 5 -->
-            <a href="https://youtu.be/ynERZ7_njv4" target="_blank" class="link-card">
+            <div class="project-card" onclick="openModal('video', 'ynERZ7_njv4')">
                 <div class="card-visual">
                     <img src="https://img.youtube.com/vi/ynERZ7_njv4/hqdefault.jpg" alt="SKF Auto">
-                    <i class="fas fa-play-circle play-overlay"></i>
+                    <i class="fas fa-play-circle visual-icon"></i>
                 </div>
                 <div class="card-info">
                     <h3>SKF Automotive Kickoff</h3>
-                    <div class="click-hint"><i class="fas fa-external-link-alt"></i> Watch Video</div>
+                    <div class="click-hint">Play Video</div>
                 </div>
-            </a>
+            </div>
 
             <!-- Video 6 -->
-            <a href="https://youtu.be/vMSIXNHn0SI" target="_blank" class="link-card">
+            <div class="project-card" onclick="openModal('video', 'vMSIXNHn0SI')">
                 <div class="card-visual">
                     <img src="https://img.youtube.com/vi/vMSIXNHn0SI/hqdefault.jpg" alt="SKF Women">
-                    <i class="fas fa-play-circle play-overlay"></i>
+                    <i class="fas fa-play-circle visual-icon"></i>
                 </div>
                 <div class="card-info">
                     <h3>SKF Women Empowerment</h3>
-                    <div class="click-hint"><i class="fas fa-external-link-alt"></i> Watch Video</div>
+                    <div class="click-hint">Play Video</div>
                 </div>
-            </a>
+            </div>
 
         </div>
     </section>
@@ -442,6 +489,55 @@
     <footer>
         <p>© 2025 Amogh Gowda. All rights reserved.</p>
     </footer>
+
+    <!-- MODAL STRUCTURE -->
+    <div id="projectModal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content">
+            <div class="modal-close" onclick="forceClose()">&times;</div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content injected here -->
+            </div>
+            <div class="modal-fallback" id="modalFallback">
+                <!-- Fallback link injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        function openModal(type, source) {
+            const modal = document.getElementById('projectModal');
+            const modalBody = document.getElementById('modalBody');
+            const modalFallback = document.getElementById('modalFallback');
+            
+            modal.style.display = 'flex';
+            modalBody.innerHTML = '';
+            modalFallback.innerHTML = '';
+
+            if (type === 'video') {
+                // Embed YouTube with playsinline to prevent app switching
+                modalBody.innerHTML = `<iframe src="https://www.youtube.com/embed/${source}?autoplay=1&playsinline=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+            } else if (type === 'gallery') {
+                // Embed Gallery
+                modalBody.innerHTML = `<iframe src="${source}" sandbox="allow-scripts allow-same-origin allow-popups"></iframe>`;
+                // Add fallback link in case embedding is blocked by the external site
+                modalFallback.innerHTML = `If gallery doesn't load, <a href="${source}" target="_blank">click here to view externally</a>`;
+            }
+        }
+
+        function closeModal(event) {
+            if (event.target.id === 'projectModal') {
+                forceClose();
+            }
+        }
+
+        function forceClose() {
+            const modal = document.getElementById('projectModal');
+            const modalBody = document.getElementById('modalBody');
+            modal.style.display = 'none';
+            modalBody.innerHTML = ''; // Stop video/iframe
+        }
+    </script>
 
 </body>
 </html>
