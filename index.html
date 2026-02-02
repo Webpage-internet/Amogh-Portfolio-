@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- Allowed zooming (user-scalable=yes) so you can zoom into images -->
+    <!-- Viewport settings for perfect mobile scaling and zooming -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
     <meta name="description" content="Amogh Gowda - 2D and 3D Artist Portfolio">
     <title>Amogh Gowda | 2D and 3D Artist Portfolio</title>
@@ -126,12 +126,7 @@
             transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
             position: relative;
             cursor: pointer;
-        }
-
-        .project-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary);
-            box-shadow: 0 10px 25px rgba(0, 242, 255, 0.2);
+            z-index: 1;
         }
 
         .card-visual {
@@ -148,13 +143,8 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            opacity: 0.85; /* Slight dim for text readability */
+            opacity: 0.85;
             transition: transform 0.5s ease, opacity 0.3s;
-        }
-
-        .project-card:hover .card-visual img {
-            transform: scale(1.1);
-            opacity: 1;
         }
         
         .visual-icon {
@@ -169,9 +159,30 @@
             transition: all 0.3s;
         }
 
-        .project-card:hover .visual-icon {
-            opacity: 1;
-            transform: scale(1);
+        /* --- DESKTOP HOVER EFFECTS ONLY --- */
+        /* This prevents "double tap" issues on mobile */
+        @media (hover: hover) {
+            .project-card:hover {
+                transform: translateY(-5px);
+                border-color: var(--primary);
+                box-shadow: 0 10px 25px rgba(0, 242, 255, 0.2);
+            }
+            .project-card:hover .card-visual img {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+            .project-card:hover .visual-icon {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* On Touch Devices, make icon always visible slightly so they know it's actionable */
+        @media (hover: none) {
+            .visual-icon {
+                opacity: 0.7;
+                transform: scale(1);
+            }
         }
 
         .card-info {
@@ -295,14 +306,15 @@
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: transparent;
-            color: rgba(255,255,255,0.7);
+            background: rgba(0,0,0,0.3); /* Slight background for mobile visibility */
+            color: rgba(255,255,255,0.9);
             border: none;
-            padding: 30px;
-            font-size: 3rem;
+            padding: 20px;
+            font-size: 2.5rem;
             cursor: pointer;
             z-index: 10002;
-            text-shadow: 0 0 10px #000;
+            border-radius: 50%;
+            margin: 0 10px;
         }
         .prev { left: 0; }
         .next { right: 0; }
@@ -384,24 +396,20 @@
             animation: spin 1s linear infinite;
             position: absolute;
             z-index: 9999;
-            display: none; /* Hidden by default */
+            display: none;
         }
         
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Mobile Fixes */
+        /* Mobile Adjustments */
         @media (max-width: 768px) {
             h1 { font-size: 2.5rem; }
             .grid-container { grid-template-columns: 1fr; }
-            /* Adjusted arrows for mobile to be visible but smaller */
+            /* Ensure arrows are visible on mobile but smaller */
             .nav-btn { 
                 padding: 15px; 
                 font-size: 2rem; 
-                background: rgba(0,0,0,0.3); /* Add faint background for visibility on mobile */
-                border-radius: 50%;
             }
-            .prev { left: 10px; }
-            .next { right: 10px; }
         }
     </style>
 </head>
@@ -613,4 +621,215 @@
         
         <!-- Gallery Container -->
         <div id="galleryContainer" class="gallery-container" style="display:none;">
-            <div class="loader" 
+            <div class="loader" id="loader"></div>
+            <button class="nav-btn prev" onclick="changeSlide(-1)">&#10094;</button>
+            <img id="modalImage" class="gallery-img" src="" alt="" onload="hideLoader()">
+            <button class="nav-btn next" onclick="changeSlide(1)">&#10095;</button>
+            
+            <!-- Instructions and Dots -->
+            <div id="slideInstruction" class="slide-instruction">Swipe Left or Right to View Images</div>
+            <div id="galleryDots" class="gallery-dots"></div>
+        </div>
+        <div id="imageCaption" class="image-caption" style="display:none;"></div>
+
+        <!-- Video Container -->
+        <div id="videoContainer" class="video-container" style="display:none;">
+            <div id="videoPlayer"></div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // --- DATA: IMAGE URLS (Updated with ibb.co links) ---
+        const galleryData = {
+            'ge': [
+                "https://i.ibb.co/Nnn6xNsR/1-8-Photo.jpg",
+                "https://i.ibb.co/JwGdy6bj/1-9-Photo.jpg",
+                "https://i.ibb.co/ynrvWCg0/1-10-Photo.jpg",
+                "https://i.ibb.co/Cp62hmSM/1-Exterior-Urban-Setting-2.jpg",
+                "https://i.ibb.co/FkGLznrG/1-Exterior-Urban-Setting-3.jpg",
+                "https://i.ibb.co/SDrhZNBC/1-Exterior-Urban-Setting.jpg",
+                "https://i.ibb.co/zWQ4dnbz/3.jpg"
+            ],
+            'elt': [
+                "https://i.ibb.co/YBCBDvpC/stage-11-Photo.jpg",
+                "https://i.ibb.co/YBg91yJ7/stage-12-Photo.jpg",
+                "https://i.ibb.co/Wvqs77vw/stage-13-Photo.jpg",
+                "https://i.ibb.co/tTR02Yvx/stage-14-Photo.jpg",
+                "https://i.ibb.co/jkn3HTpD/stage-15-Photo.jpg",
+                "https://i.ibb.co/0jjWbZ7y/stage-16-Photo.jpg"
+            ],
+            'auto': [
+                "https://i.ibb.co/j99MbhS4/b9ox.jpg",
+                "https://i.ibb.co/TzhmXxp/STAGe-8-Photo.jpg",
+                "https://i.ibb.co/sd14bpwW/STAGe-9-Photo.jpg",
+                "https://i.ibb.co/HQfKRQw/STAGe-10-Photo.jpg",
+                "https://i.ibb.co/Z1hPC7R8/STAGe-Exterior-Crossing.jpg",
+                "https://i.ibb.co/mr318ynn/STAGe-Exterior-Detail-Restaurant.jpg",
+                "https://i.ibb.co/39ZQkKdy/STAGe-Exterior-Detail-Street.jpg",
+                "https://i.ibb.co/bjGdLX07/STAGe-Exterior-Detail.jpg",
+                "https://i.ibb.co/VY6CyW1s/STAGe-Exterior-Main-View.jpg",
+                "https://i.ibb.co/5g8W8s85/STAGe-Exterior-Urban-Setting.jpg",
+                "https://i.ibb.co/xqCYnYyr/STAGe-Orthographic-Elevation.jpg"
+            ],
+            'eco': [
+                "https://i.ibb.co/FLqQZT7y/v10-3-Photo.jpg",
+                "https://i.ibb.co/wFNZmzPX/v10-6-Photo.jpg",
+                "https://i.ibb.co/N6LNDKgr/v10-7-Photo.jpg",
+                "https://i.ibb.co/VcCV91YH/v11-1-Photo.jpg",
+                "https://i.ibb.co/s9MDhhpV/v11-2-Photo.jpg",
+                "https://i.ibb.co/fzRXq4ry/v11-5-Photo.jpg",
+                "https://i.ibb.co/whmrD3bP/v11-6-Photo.jpg",
+                "https://i.ibb.co/27rG2b4R/v11-7-Photo.jpg"
+            ],
+            'skf': [
+                "https://i.ibb.co/8n4n4DRb/53-and-54-53-Photo.jpg",
+                "https://i.ibb.co/DPP5ztg4/53-and-54-54-Photo.jpg",
+                "https://i.ibb.co/1t8n7TfV/full-51-Photo.jpg",
+                "https://i.ibb.co/4RgRCY6W/full-52-Photo.jpg",
+                "https://i.ibb.co/ZpjQ4mLr/full-53-Photo.jpg",
+                "https://i.ibb.co/9kJ2k2qM/full-54-Photo.jpg",
+                "https://i.ibb.co/cSTWPgCw/full-55-Photo-2.jpg",
+                "https://i.ibb.co/nMhjxZJk/full-55-Photo.jpg",
+                "https://i.ibb.co/nMcRLNFC/out-line-41-Photo.jpg",
+                "https://i.ibb.co/MrD5ZcF/out-line-42-Photo.jpg"
+            ]
+        };
+
+        // --- STATE VARIABLES ---
+        let currentGalleryId = '';
+        let currentImageIndex = 0;
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        // --- FUNCTIONS ---
+
+        // Open Gallery Modal
+        function openGallery(id) {
+            currentGalleryId = id;
+            currentImageIndex = 0;
+            
+            document.getElementById('mediaModal').style.display = 'flex';
+            document.getElementById('galleryContainer').style.display = 'flex';
+            document.getElementById('imageCaption').style.display = 'block';
+            document.getElementById('videoContainer').style.display = 'none';
+
+            generateDots(galleryData[id].length);
+            updateImage();
+        }
+
+        // Generate Dots
+        function generateDots(length) {
+            const dotsContainer = document.getElementById('galleryDots');
+            dotsContainer.innerHTML = '';
+            for (let i = 0; i < length; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'dot';
+                dot.onclick = () => jumpToSlide(i);
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        // Jump to specific slide
+        function jumpToSlide(index) {
+            currentImageIndex = index;
+            updateImage();
+        }
+
+        // Loader visibility functions
+        function showLoader() { document.getElementById('loader').style.display = 'block'; }
+        function hideLoader() { document.getElementById('loader').style.display = 'none'; }
+
+        // Update Image & Caption & Dots
+        function updateImage() {
+            const images = galleryData[currentGalleryId];
+            const imgElement = document.getElementById('modalImage');
+            const captionElement = document.getElementById('imageCaption');
+            
+            // Show loader while new image fetches
+            showLoader();
+            
+            // Fade effect for smooth transition
+            imgElement.style.opacity = '0';
+            
+            // Allow brief delay for loading to start
+            setTimeout(() => {
+                imgElement.src = images[currentImageIndex];
+                imgElement.style.opacity = '1';
+            }, 50);
+
+            captionElement.innerText = `Image ${currentImageIndex + 1} of ${images.length}`;
+
+            // Update Dots Active State
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, index) => {
+                if (index === currentImageIndex) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+
+        // Change Slide (Next/Prev)
+        function changeSlide(direction) {
+            const images = galleryData[currentGalleryId];
+            currentImageIndex += direction;
+
+            if (currentImageIndex < 0) {
+                currentImageIndex = images.length - 1;
+            } else if (currentImageIndex >= images.length) {
+                currentImageIndex = 0;
+            }
+            updateImage();
+        }
+
+        // Open Video Modal
+        function openVideo(videoId) {
+            document.getElementById('mediaModal').style.display = 'flex';
+            document.getElementById('galleryContainer').style.display = 'none';
+            document.getElementById('imageCaption').style.display = 'none';
+            document.getElementById('videoContainer').style.display = 'flex';
+
+            document.getElementById('videoPlayer').innerHTML = 
+                `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+        }
+
+        // Close Modal Logic
+        function closeModal(event) {
+            if (event.target.id === 'mediaModal' || event.target.classList.contains('gallery-container')) {
+                closeModalForce();
+            }
+        }
+
+        function closeModalForce() {
+            document.getElementById('mediaModal').style.display = 'none';
+            document.getElementById('videoPlayer').innerHTML = ''; // Stop video
+        }
+
+        // --- TOUCH / SWIPE LOGIC ---
+        const galleryContainer = document.getElementById('galleryContainer');
+
+        galleryContainer.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+
+        galleryContainer.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                changeSlide(1); // Swipe Left -> Next
+            }
+            if (touchEndX > touchStartX + 50) {
+                changeSlide(-1); // Swipe Right -> Prev
+            }
+        }
+    </script>
+
+</body>
+</html>
+
+
