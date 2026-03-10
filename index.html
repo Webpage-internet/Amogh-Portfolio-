@@ -378,7 +378,7 @@
             z-index: 10003;
         }
 
-        /* Video Container */
+        /* --- VIDEO PLAYER STYLES (Fixed to be large/fullscreen) --- */
         .video-container {
             width: 100%;
             height: 100%;
@@ -386,8 +386,24 @@
             align-items: center;
             justify-content: center;
             background: #000;
+            padding: 20px;
         }
-        .video-container iframe { width: 100%; height: auto; aspect-ratio: 16/9; border: none; }
+        
+        #videoPlayer {
+            width: 100%;
+            max-width: 1200px; /* Big screen size max width */
+            aspect-ratio: 16 / 9;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        #videoPlayer iframe { 
+            width: 100%; 
+            height: 100%; 
+            border: none; 
+            display: block;
+        }
 
         /* Loader */
         .loader {
@@ -414,6 +430,8 @@
             }
             .prev { left: 10px; }
             .next { right: 10px; }
+            .video-container { padding: 0; }
+            #videoPlayer { border-radius: 0; }
         }
     </style>
 </head>
@@ -537,6 +555,18 @@
                 </div>
                 <div class="card-info">
                     <h3>Beach Fiesta</h3>
+                    <div class="click-hint">View Gallery</div>
+                </div>
+            </div>
+
+            <!-- Gallery 9: YAMUNA STALL -->
+            <div class="project-card" onclick="openGallery('yamuna')">
+                <div class="card-visual">
+                    <img src="https://i.ibb.co/hJLMk500/1.jpg" alt="Yamuna Stall Render">
+                    <i class="fas fa-expand visual-icon"></i>
+                </div>
+                <div class="card-info">
+                    <h3>Yamuna Stall Render</h3>
                     <div class="click-hint">View Gallery</div>
                 </div>
             </div>
@@ -834,6 +864,32 @@
                 "https://i.ibb.co/LDCGtM3S/v1-18-Photo.jpg",
                 "https://i.ibb.co/4n2bK0nm/v1-19-Photo.jpg",
                 "https://i.ibb.co/1YyqBGFB/v1-20-Photo.jpg"
+            ],
+            'yamuna': [
+                "https://i.ibb.co/hJLMk500/1.jpg",
+                "https://i.ibb.co/hRyZwH0m/2.jpg",
+                "https://i.ibb.co/WWNxNhwk/3.jpg",
+                "https://i.ibb.co/h1MR2hjp/4.jpg",
+                "https://i.ibb.co/Z1SKbgkD/5.jpg",
+                "https://i.ibb.co/ksXvy1H9/6.jpg",
+                "https://i.ibb.co/m5dDv2rN/Final-render-1-Photo.jpg",
+                "https://i.ibb.co/WNcV3tNS/Final-render-2-Photo.jpg",
+                "https://i.ibb.co/b5KpQmt3/Final-render-3-Photo.jpg",
+                "https://i.ibb.co/DfbnggwW/Final-render-4-Photo-2.jpg",
+                "https://i.ibb.co/WW4B2WhK/Final-render-4-Photo.jpg",
+                "https://i.ibb.co/qYvrPcZv/Final-render-5-Photo.jpg",
+                "https://i.ibb.co/pr4rKHqy/Final-render-7-Photo.jpg",
+                "https://i.ibb.co/8nzfg5KP/Final-render-8-Photo-2.jpg",
+                "https://i.ibb.co/TxVqtn3j/Final-render-8-Photo.jpg",
+                "https://i.ibb.co/Cs1fGz4P/Final-render-10-Photo.jpg",
+                "https://i.ibb.co/BH3vRXV7/Final-render-11-Photo.jpg",
+                "https://i.ibb.co/ynpkkfwy/Final-render-12-Photo.jpg",
+                "https://i.ibb.co/8gQYv3Hf/Final-render-13-Photo.jpg",
+                "https://i.ibb.co/5hG774mY/Final-render-14-Photo.jpg",
+                "https://i.ibb.co/S7wnt1C7/Final-render-15-Photo.jpg",
+                "https://i.ibb.co/HLs1hy1D/Final-render-16-Photo.jpg",
+                "https://i.ibb.co/CpV9zZ5s/Final-render-17-Photo.jpg",
+                "https://i.ibb.co/BVXLNSBL/Final-render-18-Photo.jpg"
             ]
         };
 
@@ -964,7 +1020,7 @@
 
         // Close Modal Logic
         function closeModal(event) {
-            if (event.target.id === 'mediaModal' || event.target.classList.contains('gallery-container')) {
+            if (event.target.id === 'mediaModal' || event.target.classList.contains('gallery-container') || event.target.id === 'videoContainer') {
                 closeModalForce();
             }
         }
